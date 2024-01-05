@@ -180,7 +180,7 @@ def main():
 
     from threading import Thread
     def run_app():
-        app.run(port=8081, debug=True, use_reloader=False)
+        app.run(host='0.0.0.0', port=8081, debug=True, use_reloader=False)
     Thread(target=run_app).start()
 
     links_filename = create_links_file()
