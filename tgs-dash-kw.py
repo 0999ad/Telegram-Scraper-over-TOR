@@ -36,12 +36,14 @@ app.config['TEMPLATES_AUTO_RELOAD'] = True
 @app.route('/')
 def dashboard():
     results_filename = flask_configurations.get("RESULTS_FILENAME")
+    keywords = read_keywords_from_file('keywords.txt')  # Reading keywords from file
     if results_filename and os.path.exists(results_filename):
         with open(results_filename, "r") as file:
             content = file.read()
     else:
         content = "No results available."
-    return render_template('dashboard.html', content=content)
+    return render_template('dashboard.html', content=content, keywords=", ".join(keywords))
+
 
 def create_results_file(keywords_input):
     current_datetime = get_current_datetime_formatted()
