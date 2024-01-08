@@ -20,6 +20,11 @@
         h1 {
             color: #0066cc; /* Dark Blue */
         }
+        .keywords {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333; /* Dark Grey */
+        }
         .results {
             background-color: #fff;
             padding: 10px;
@@ -32,6 +37,9 @@
 <body>
     <div class="container">
         <h1>Results Dashboard</h1>
+        <div class="keywords">
+            <strong>Keywords:</strong> {{ keywords }}
+        </div>
         <div class="results">
             <h2>Latest Results</h2>
             <ul>
