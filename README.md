@@ -1,79 +1,66 @@
-# Telegram Channel Scraper and Dashboard Via TOR
+# Telegram Channel Scraper and Dashboard via TOR
 
 ## Legal Disclaimer
-This script is provided for **educational purposes only**. Users are responsible for ensuring that their use of the script complies with local legal laws and regulations. The originator of this code disclaims any responsibility for unethical or illegal use of the script. Users should exercise due diligence and respect the terms of service and data usage policies of the websites they interact with using this script.
+This software is intended for **educational and research purposes only**. Users must ensure their use of this software complies with local laws and regulations. The creators of this software disclaim any liability for misuse or for any damage that may occur from using the software. It is the user's responsibility to use this software ethically and in accordance with the terms of service of any platform or data it interacts with.
 
 ## Overview
 
-This advanced Python-based project is designed for scraping content from specified Telegram channels using predefined keywords, with enhanced privacy through Tor network integration. It showcases the capabilities of Selenium for robust web scraping and Flask for serving a dynamic web-based dashboard.
+This project provides a powerful tool for scraping content from Telegram channels based on specified keywords, leveraging the Tor network for enhanced privacy. It combines the robust web scraping capabilities of Selenium with the dynamic and interactive presentation of results through a Flask-based web dashboard.
 
 ## Features
 
-- **Enhanced Privacy with Tor Integration**: Routes scraping activities through the Tor network for increased anonymity.
-- **Automated Telegram Channel Scraping**: Programmatically extracts data from specified Telegram channel URLs.
-- **Keyword Filtering with Advanced Matching**: Employs a list of predefined keywords to filter content, supporting complex matching strategies.
-- **Dynamic Flask Web Dashboard**: Displays real-time scraping results on a web dashboard, with updates as new data is scraped.
-- **Parallel Scraping Mechanism**: Utilizes Python's concurrent futures for efficient scraping of multiple channels simultaneously.
-- **File-Based Configuration and Data Management**: Manages keywords, results, and configurations through external text files for flexibility and persistence.
+- **Tor Network Integration**: Maximizes user privacy by routing scraping actions through the Tor network.
+- **Targeted Content Scraping**: Automatically retrieves content from specified Telegram channels, utilizing user-defined keywords for targeted scraping.
+- **Dynamic Results Dashboard**: Features a Flask web dashboard that updates in real-time to display scraping outcomes, offering insights into the data collected.
+- **Concurrent Scraping**: Implements parallel processing to scrape multiple sources simultaneously, optimizing the use of resources and reducing execution time.
+- **Configurable and Extensible**: Designed for easy customization and extension, allowing users to adapt the tool to their specific needs without extensive modifications.
 
-## Technical Details
+## Technical Specifications
 
 ### Dependencies
 
 - Python 3.x
-- Flask (`flask`)
-- BeautifulSoup4 (`beautifulsoup4`)
-- Selenium (`selenium`)
-- Requests (`requests`)
+- Flask
+- BeautifulSoup4
+- Selenium
+- Requests
 
-### File Structure
+### Installation
 
-- `TeleScrape.py`: The main Python script for scraping, Flask server setup, and Tor integration.
-- `config.txt`: Optional configuration file for custom Flask settings and other preferences.
-- `keywords.txt`: Text file containing the list of keywords for scraping, one keyword per line.
-- `/templates`: Directory containing Flask HTML templates for the dashboard.
-
-### Setup and Installation
-
-1. **Environment Preparation**: Ensure Python 3.x is installed. Optionally, set up a virtual environment for the project.
-2. **Dependencies Installation**: Install the required Python libraries.
-   ```bash
+1. **Python 3.x**: Ensure Python 3.x is installed on your machine.
+2. **Dependencies Installation**: Install necessary Python packages.
+   ```sh
    pip install flask beautifulsoup4 selenium requests
    ```
-3. **Tor Configuration**: Ensure Tor is installed and running on your system. The script is configured to connect to Tor on `localhost:9050`.
-4. **Chrome WebDriver Setup**: Download and place the Chrome WebDriver in your system's PATH or specify its location in the script.
+3. **Tor Setup**: Install and run Tor on your local system. The software expects a Tor SOCKS proxy on `localhost:9050`.
+4. **Chrome WebDriver**: Ensure Chrome WebDriver is installed and its path is correctly configured in the script.
 
-### Usage
+### Structure
 
-1. **Prepare Keyword File**: Populate `keywords.txt` with your target keywords for scraping.
-2. **Run the Script**: Launch the script to start scraping and the Flask dashboard.
-   ```bash
+- `TeleScrape.py`: Main script integrating scraping logic, Flask app, and Tor configuration.
+- `keywords.txt`: A simple text file listing the keywords for content filtering.
+- `/templates`: Contains HTML templates for the Flask dashboard.
+
+## Usage
+
+1. **Configure Keywords**: Fill `keywords.txt` with the keywords you wish to use for scraping.
+2. **Execute Script**: Run `TeleScrape.py` to initiate scraping and start the Flask dashboard.
+   ```sh
    python TeleScrape.py
    ```
-3. **Access the Dashboard**: Navigate to `http://127.0.0.1:8080/` in a web browser to view the live scraping results.
+3. **Dashboard Access**: Visit `http://127.0.0.1:8081/` in your browser to view live updates of the scraping process and results.
 
-## Flask Dashboard
+## Dashboard Features
 
-The Flask dashboard serves as a real-time interface to monitor scraping results. It dynamically updates to display the latest data as the script processes Telegram channels.
-
-### Dashboard Features
-
-- **Real-Time Data Visualization**: Instantly displays scraping results as they are gathered.
-- **Keyword and Match Highlighting**: Highlights the keywords and matched content for easy analysis.
-- **Adaptive and Responsive Design**: Ensures compatibility across different devices and screen sizes.
-
-<img width="1790" alt="Screenshot 2024-03-20 at 19 22 02" src="https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/ef974a23-74f5-41f5-a897-ceffadae8d9b">
+- **Live Updates**: The dashboard refreshes in real-time, showcasing the latest scraping results.
+- **Keyword Highlighting**: Enhances readability by highlighting keywords and matches within the scraped content.
+- **Responsive Design**: Ensures a seamless viewing experience across various devices and screen sizes.
+<img width="1792" alt="Screenshot 2024-03-20 at 20 31 49" src="https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/f757d0e6-3de6-4d10-86ac-70812f9dfa26">
 
 ## Contributing
 
-Contributions are highly appreciated. To contribute:
-
-1. **Fork the Repository**: Create your copy of the project.
-2. **Implement Changes**: Work on improvements or new features.
-3. **Submit a Pull Request**: Propose your enhancements for integration.
+We welcome contributions to improve the project. If you have suggestions or enhancements, please fork the repository, make your changes, and submit a pull request for review.
 
 ## License
 
-This project is released under the [MIT License](LICENSE.md), promoting open and permissive software licensing.
-
----
+This project is licensed under the [MIT License](LICENSE.md), encouraging a wide adoption and contribution by providing a permissive framework for software sharing and modification.
