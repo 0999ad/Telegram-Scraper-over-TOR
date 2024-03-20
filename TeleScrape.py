@@ -1,8 +1,9 @@
-#!/usr/bin/env python3
+!/usr/bin/env python3
 """
-TeleScrape Version 1.0 (Production): A sophisticated web scraping tool designed for extracting content
+TeleScrape Version 1.1 (Production): A sophisticated web scraping tool designed for extracting content
 from Telegram channels, with enhanced privacy features through Tor network integration and
 a dashboard for displaying results, including matched content based on specified keywords.
+
 
 Usage:
   python TeleScrape.py
@@ -11,7 +12,6 @@ Usage:
 import time
 import requests
 from bs4 import BeautifulSoup
-import os
 import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -23,14 +23,24 @@ from flask import Flask, render_template
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import concurrent.futures
-from threading import Thread
+from threading import Thread, Lock
+import traceback
 
 app = Flask(__name__, template_folder='templates')
 
-# Global variables to store links info and results
+# Global variables to store links info, results, and keywords
 links_info = {'count': 0, 'filename': ''}
 results = []
+keywords_searched = []
+lock = Lock()
 
+# Configure logging to output to both console and file
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s',
+                    handlers=[
+                        logging.FileHandler("TeleScrape.log"),
+                        logging.StreamHandler()
+                    ])
 
 def setup_chrome_with_tor():
     """Setups Chrome with Tor proxy for enhanced privacy."""
@@ -42,7 +52,6 @@ def setup_chrome_with_tor():
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
 
-
 def verify_tor_connection():
     """Verifies the connection to the Tor network."""
     session = requests.session()
@@ -51,25 +60,24 @@ def verify_tor_connection():
         ip_check_url = 'http://httpbin.org/ip'
         response = session.get(ip_check_url)
         tor_ip = response.json()["origin"]
-        print(f"Connected to TOR.\nTOR IP Address: {tor_ip}")
+        logging.info(f"Connected to TOR.\nTOR IP Address: {tor_ip}")
     except requests.RequestException as e:
-        print(f"Tor connection failed: {e}")
-
+        logging.error(f"Tor connection failed: {e}")
 
 def get_current_datetime_formatted():
     """Returns the current date and time formatted as a string."""
     return datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
 
-
 def read_keywords_from_file(file_path):
     """Reads keywords from a specified file."""
+    global keywords_searched
     try:
         with open(file_path, 'r') as file:
-            return [line.strip() for line in file if line.strip()]
+            keywords_searched = [line.strip() for line in file if line.strip()]
+            return keywords_searched
     except FileNotFoundError:
-        print(f"Keyword file '{file_path}' not found.")
+        logging.error(f"Keyword file '{file_path}' not found.")
         return []
-
 
 def create_links_file():
     """Fetches Telegram channel links and saves them to a file."""
@@ -77,14 +85,14 @@ def create_links_file():
     driver = setup_chrome_with_tor()
     try:
         github_url = "https://github.com/fastfire/deepdarkCTI/blob/main/telegram.md"
-        print(f"Fetching links from {github_url}...")
+        logging.info(f"Fetching links from {github_url}...")
         driver.get(github_url)
         time.sleep(5)
 
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
         links = soup.find_all("a", href=True)
-        filtered_links = [link["href"] for link in links if link["href"].startswith("https://t.me/")]
+        filtered_links = [link["href"] for link in links if "https://t.me/" in link["href"]]
 
         current_datetime = get_current_datetime_formatted()
         links_filename = f"{current_datetime}-links.txt"
@@ -95,52 +103,54 @@ def create_links_file():
             for link in filtered_links:
                 file.write(link + "\n")
 
-        print(f"Found {len(filtered_links)} links and saved them to '{links_filename}'")
-        return filtered_links  # Return the list of links for further processing
+        logging.info(f"Found {len(filtered_links)} links and saved them to '{links_filename}'")
+        return filtered_links
     except (WebDriverException, Exception) as e:
         logging.error(f"Error creating links file: {e}")
-        print(f"Error creating links file: {e}")
     finally:
         driver.quit()
 
-
 def scrape_channel(channel_url, keywords):
-    """Scrapes content from a specified Telegram channel URL based on keywords."""
     driver = setup_chrome_with_tor()
     try:
-        # Ensure URL is in the correct format for previewing content
-        channel_url_preview = f"https://t.me/s/{channel_url.split('/')[-1]}" if not channel_url.startswith(
-            "https://t.me/s/") else channel_url
+        # Ensure the URL is correctly formatted for scraping
+        channel_url_preview = channel_url if channel_url.startswith("https://t.me/s/") else channel_url.replace("https://t.me/", "https://t.me/s/")
         driver.get(channel_url_preview)
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "tgme_widget_message_text")))
+        WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tgme_widget_message_text")))
 
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
         text_elements = soup.find_all(class_="tgme_widget_message_text")
         for element in text_elements:
             text = element.get_text()
-            if any(keyword.lower() in text.lower() for keyword in keywords):
-                # Append a snippet of the match
-                results.append(f"Match found in {channel_url}: {text[:150]}")
-                break
+            for keyword in keywords:
+                if keyword.lower() in text.lower():
+                    keyword_lower = keyword.lower()
+                    index = text.lower().find(keyword_lower)
+                    start_index = max(index - 150, 0)
+                    end_index = min(index + len(keyword_lower) + 150, len(text))
+                    context = text[start_index:end_index]
+                    match_message = f"Match found in {channel_url}: ...{context}..."
+                    with lock:
+                        results.append(match_message)
+                    logging.info(match_message)
+                    break  # Assuming only one match per element is needed
     except TimeoutException:
-        print(f"Timed out waiting for page to load: {channel_url}")
+        logging.warning(f"Timed out waiting for page to load: {channel_url}")
     except Exception as e:
-        print(f"Error scraping {channel_url}: {str(e)}")
+        logging.error(f"Error scraping {channel_url}: {str(e)}\n{traceback.format_exc()}")
     finally:
         driver.quit()
-
 
 @app.route('/')
 def dashboard():
     """Flask route for the dashboard."""
-    return render_template('dashboard.html', results=results, links_info=links_info)
-
+    with lock:
+        return render_template('dashboard.html', results=results, links_info=links_info, keywords=keywords_searched)
 
 def run_flask_app():
     """Runs the Flask application in a separate thread."""
-    app.run(debug=True, host='0.0.0.0', port=8080, use_reloader=False)
-
+    app.run(debug=True, host='0.0.0.0', port=8081, use_reloader=False)
 
 def main():
     """Main function to orchestrate the scraping process and update the dashboard."""
@@ -152,9 +162,10 @@ def main():
         futures = [executor.submit(scrape_channel, link, keywords) for link in links]
         concurrent.futures.wait(futures)
 
-    print("Scraping and keyword search completed. Please visit the dashboard for results.")
-
+    logging.info("Scraping and keyword search completed. Please visit the dashboard for results.")
 
 if __name__ == "__main__":
-    Thread(target=run_flask_app).start()
+    flask_thread = Thread(target=run_flask_app)
+    flask_thread.daemon = True  # Ensure the Flask thread is daemonic
+    flask_thread.start()
     main()
