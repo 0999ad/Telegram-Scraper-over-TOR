@@ -62,7 +62,7 @@ The Flask dashboard serves as a real-time interface to monitor scraping results.
 - **Keyword and Match Highlighting**: Highlights the keywords and matched content for easy analysis.
 - **Adaptive and Responsive Design**: Ensures compatibility across different devices and screen sizes.
 
-![Screenshot 2024-03-20 at 14 35 33](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/812179ff-33e9-43d5-a1ad-666ea0d3f683)
+<img width="1790" alt="Screenshot 2024-03-20 at 19 22 02" src="https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/ef974a23-74f5-41f5-a897-ceffadae8d9b">
 
 ## Contributing
 
