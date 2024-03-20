@@ -6,6 +6,7 @@ This software is intended for **educational and research purposes only**. Users 
 ## Overview
 
 This project provides a powerful tool for scraping content from Telegram channels based on specified keywords, leveraging the Tor network for enhanced privacy. It combines the robust web scraping capabilities of Selenium with the dynamic and interactive presentation of results through a Flask-based web dashboard.
+With no need for a Telegram API, this uses the preview function of web based telegram. Some will work, some will not.
 
 ## Features
 
