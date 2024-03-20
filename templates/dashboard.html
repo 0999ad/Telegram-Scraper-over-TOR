@@ -3,51 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results Dashboard</title>
+    <title>Search Results</title>
     <style>
         body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f0f8ff; /* Light Blue */
+            font-family: 'Courier New', monospace; /* Change font to something more 'hacker-like' */
+            background-color: #121212; /* Dark background */
+            color: #0f0; /* Bright green text, reminiscent of old terminals */
+            margin: 0;
+            padding: 20px;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
+            background-color: #1e1e1e; /* Slightly lighter dark shade for the container */
             padding: 20px;
-            background-color: #87CEEB; /* Sky Blue */
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); /* Green glow */
         }
         h1 {
-            color: #0066cc; /* Dark Blue */
+            color: #0f0; /* Bright green */
+            text-align: center;
+            margin-bottom: 20px;
         }
-        .keywords {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: #333; /* Dark Grey */
-        }
-        .results {
-            background-color: #fff;
+        .result {
+            margin-bottom: 10px;
             padding: 10px;
-            margin-top: 10px;
+            border: 1px solid #333; /* Darker border for each result */
             border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            background-color: #1a1a1a; /* Even darker background for results */
+            color: #0f0; /* Bright green text */
+        }
+        .result p {
+            margin: 0;
+        }
+        .no-results {
+            color: #0f0; /* Bright green text for consistency */
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Results Dashboard</h1>
-        <div class="keywords">
-            <strong>Keywords:</strong> {{ keywords }}
-        </div>
-        <div class="results">
-            <h2>Latest Results</h2>
-            <ul>
-                {% for result in content.splitlines() %}
-                <li>{{ result }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+        <h1>Search Results</h1>
+        {% if results %}
+            {% for result in results %}
+                <div class="result">
+                    <p>{{ result }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-results">No results found.</p>
+        {% endif %}
     </div>
 </body>
 </html>
