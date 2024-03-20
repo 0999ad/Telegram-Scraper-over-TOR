@@ -4,50 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeleScrape Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            font-family: 'Courier New', monospace;
-            background-color: #121212;
-            color: #0f0;
-            margin: 0;
-            padding: 20px;
+            background-color: #343a40; /* Dark theme background */
+            color: #0f0; /* Green text as base color */
+            padding: 20px; /* Added padding around the entire body for a border effect */
         }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background-color: #1e1e1e;
+        .full-width-container {
             padding: 20px;
+            background-color: #23272b; /* Slightly lighter dark shade */
+            color: #ff0000; /* Red text for links info */
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+            margin: 20px auto; /* Added margin to ensure there's space around the container */
         }
         h1 {
-            color: #0f0;
-            text-align: center;
-            margin-bottom: 20px;
+            color: #0f0 !important; /* Force the title color to green */
         }
         .result {
-            margin-bottom: 10px;
+            background-color: #1a1a1a; /* Dark background for results */
+            color: #0f0; /* Green text for results */
+            border: 1px solid #333; /* Dark border */
+            border-radius: 5px; /* Rounded borders */
             padding: 10px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            background-color: #1a1a1a;
-            color: #0f0;
-        }
-        .result p {
-            margin: 0;
-            white-space: pre-wrap; /* Ensures that the formatting and spacing are preserved */
-        }
-        .no-results {
-            color: #0f0;
-            text-align: center;
+            margin-bottom: 10px;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>TeleScrape Dashboard</h1>
-        <p>Links Found: {{ links_info.count }}</p>
-        <p>Links File: {{ links_info.filename }}</p>
+<body class="text-light bg-dark"> <!-- Utilize Bootstrap classes for dark theme -->
+    <div class="container-fluid full-width-container">
+        <h1 class="text-center mb-4">TeleScrape Dashboard</h1>
+        <p class="text-success">Links Found: <span class="text-danger">{{ links_info.count }}</span></p>
+        <p class="text-success">Links File: <span class="text-danger">{{ links_info.filename }}</span></p>
         {% if results %}
             {% for result in results %}
                 <div class="result">
@@ -55,8 +45,13 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="no-results">No results found.</p>
+            <p class="text-center">No results found.</p>
         {% endif %}
     </div>
+
+    <!-- Optional JavaScript and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
