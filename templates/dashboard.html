@@ -3,48 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results</title>
+    <title>TeleScrape Dashboard</title>
     <style>
         body {
-            font-family: 'Courier New', monospace; /* Change font to something more 'hacker-like' */
-            background-color: #121212; /* Dark background */
-            color: #0f0; /* Bright green text, reminiscent of old terminals */
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            color: #0f0;
             margin: 0;
             padding: 20px;
         }
         .container {
             max-width: 800px;
-            margin: 0 auto;
-            background-color: #1e1e1e; /* Slightly lighter dark shade for the container */
+            margin: auto;
+            background-color: #1e1e1e;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); /* Green glow */
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
         }
         h1 {
-            color: #0f0; /* Bright green */
+            color: #0f0;
             text-align: center;
             margin-bottom: 20px;
         }
         .result {
             margin-bottom: 10px;
             padding: 10px;
-            border: 1px solid #333; /* Darker border for each result */
+            border: 1px solid #333;
             border-radius: 5px;
-            background-color: #1a1a1a; /* Even darker background for results */
-            color: #0f0; /* Bright green text */
+            background-color: #1a1a1a;
+            color: #0f0;
         }
         .result p {
             margin: 0;
+            white-space: pre-wrap; /* Ensures that the formatting and spacing are preserved */
         }
         .no-results {
-            color: #0f0; /* Bright green text for consistency */
+            color: #0f0;
             text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Search Results</h1>
+        <h1>TeleScrape Dashboard</h1>
+        <p>Links Found: {{ links_info.count }}</p>
+        <p>Links File: {{ links_info.filename }}</p>
         {% if results %}
             {% for result in results %}
                 <div class="result">
