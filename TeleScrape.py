@@ -1,9 +1,9 @@
-!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-TeleScrape Version 1.1 (Production): A sophisticated web scraping tool designed for extracting content
-from Telegram channels, with enhanced privacy features through Tor network integration and
-a dashboard for displaying results, including matched content based on specified keywords.
-
+TeleScrape Version 1.2 (Updated Production): A sophisticated web scraping tool designed for extracting content
+from Telegram channels, with enhanced privacy features through Tor network integration,
+a dashboard for displaying results, including matched content based on specified keywords,
+and extended functionality to keep running until manually stopped and log total execution time.
 
 Usage:
   python TeleScrape.py
@@ -87,7 +87,7 @@ def create_links_file():
         github_url = "https://github.com/fastfire/deepdarkCTI/blob/main/telegram.md"
         logging.info(f"Fetching links from {github_url}...")
         driver.get(github_url)
-        time.sleep(5)
+        time.sleep(5)  # Wait for the page to load
 
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
@@ -111,9 +111,9 @@ def create_links_file():
         driver.quit()
 
 def scrape_channel(channel_url, keywords):
+    """Scrapes content from specified Telegram channel URL based on given keywords."""
     driver = setup_chrome_with_tor()
     try:
-        # Ensure the URL is correctly formatted for scraping
         channel_url_preview = channel_url if channel_url.startswith("https://t.me/s/") else channel_url.replace("https://t.me/", "https://t.me/s/")
         driver.get(channel_url_preview)
         WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tgme_widget_message_text")))
@@ -134,7 +134,7 @@ def scrape_channel(channel_url, keywords):
                     with lock:
                         results.append(match_message)
                     logging.info(match_message)
-                    break  # Assuming only one match per element is needed
+                    break
     except TimeoutException:
         logging.warning(f"Timed out waiting for page to load: {channel_url}")
     except Exception as e:
@@ -154,6 +154,7 @@ def run_flask_app():
 
 def main():
     """Main function to orchestrate the scraping process and update the dashboard."""
+    start_time = time.time()  # Start time of script execution
     verify_tor_connection()
     keywords = read_keywords_from_file('keywords.txt')
     links = create_links_file()  # Fetch links from the specified source
@@ -162,10 +163,20 @@ def main():
         futures = [executor.submit(scrape_channel, link, keywords) for link in links]
         concurrent.futures.wait(futures)
 
-    logging.info("Scraping and keyword search completed. Please visit the dashboard for results.")
+    end_time = time.time()  # End time of script execution
+    total_time = end_time - start_time
+    logging.info(f"Scraping and keyword search completed in {total_time:.2f} seconds. Please visit the dashboard for results.")
 
 if __name__ == "__main__":
     flask_thread = Thread(target=run_flask_app)
-    flask_thread.daemon = True  # Ensure the Flask thread is daemonic
+    flask_thread.daemon = True  # Ensure the Flask thread is daemonic and terminates when the main thread does
     flask_thread.start()
+
     main()
+
+    # Keep the script running until manually stopped
+    try:
+        while True:
+            time.sleep(1)  # Sleep for 1 second at a time to handle any KeyboardInterrupt (Ctrl+C) gracefully
+    except KeyboardInterrupt:
+        print("\nScript manually stopped by the user.")
