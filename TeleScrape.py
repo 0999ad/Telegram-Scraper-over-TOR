@@ -84,7 +84,7 @@ def create_links_file():
     global links_info
     driver = setup_chrome_with_tor()
     try:
-        github_url = "https://github.com/fastfire/deepdarkCTI/blob/main/telegram.md"
+        github_url = "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md"
         logging.info(f"Fetching links from {github_url}...")
         driver.get(github_url)
         time.sleep(5)  # Wait for the page to load
