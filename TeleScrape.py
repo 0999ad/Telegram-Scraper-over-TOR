@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 1.2 (Updated Production): A sophisticated web scraping tool designed for extracting content
+TeleScrape Version 1.3 (Production): A sophisticated web scraping tool designed for extracting content
 from Telegram channels, with enhanced privacy features through Tor network integration,
 a dashboard for displaying results, including matched content based on specified keywords,
 and extended functionality to keep running until manually stopped and log total execution time.
@@ -80,35 +80,42 @@ def read_keywords_from_file(file_path):
         return []
 
 def create_links_file():
-    """Fetches Telegram channel links and saves them to a file."""
+    """Fetches Telegram channel links from multiple sources and saves them to a file."""
     global links_info
+    github_urls = [
+        "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_threat_actors.md",
+        "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md"
+    ]
+    all_filtered_links = []
     driver = setup_chrome_with_tor()
-    try:
-        github_url = "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md"
-        logging.info(f"Fetching links from {github_url}...")
-        driver.get(github_url)
-        time.sleep(5)  # Wait for the page to load
+    for github_url in github_urls:
+        try:
+            logging.info(f"Fetching links from {github_url}...")
+            driver.get(github_url)
+            time.sleep(5)  # Wait for the page to load
 
-        page_source = driver.page_source
-        soup = BeautifulSoup(page_source, "html.parser")
-        links = soup.find_all("a", href=True)
-        filtered_links = [link["href"] for link in links if "https://t.me/" in link["href"]]
+            page_source = driver.page_source
+            soup = BeautifulSoup(page_source, "html.parser")
+            links = soup.find_all("a", href=True)
+            filtered_links = [link["href"] for link in links if "https://t.me/" in link["href"]]
+            all_filtered_links.extend(filtered_links)
 
-        current_datetime = get_current_datetime_formatted()
-        links_filename = f"{current_datetime}-links.txt"
-        links_info['count'] = len(filtered_links)
-        links_info['filename'] = links_filename
+        except (WebDriverException, Exception) as e:
+            logging.error(f"Error fetching links from {github_url}: {e}")
+            continue
 
-        with open(links_filename, "w") as file:
-            for link in filtered_links:
-                file.write(link + "\n")
+    current_datetime = get_current_datetime_formatted()
+    links_filename = f"{current_datetime}-links.txt"
+    links_info['count'] = len(all_filtered_links)
+    links_info['filename'] = links_filename
 
-        logging.info(f"Found {len(filtered_links)} links and saved them to '{links_filename}'")
-        return filtered_links
-    except (WebDriverException, Exception) as e:
-        logging.error(f"Error creating links file: {e}")
-    finally:
-        driver.quit()
+    with open(links_filename, "w") as file:
+        for link in all_filtered_links:
+            file.write(link + "\n")
+
+    logging.info(f"Found {len(all_filtered_links)} links in total and saved them to '{links_filename}'")
+    driver.quit()
+    return all_filtered_links
 
 def scrape_channel(channel_url, keywords):
     """Scrapes content from specified Telegram channel URL based on given keywords."""
@@ -157,8 +164,11 @@ def main():
     start_time = time.time()  # Start time of script execution
     verify_tor_connection()
     keywords = read_keywords_from_file('keywords.txt')
-    links = create_links_file()  # Fetch links from the specified source
+    links = create_links_file()  # Fetch links from the specified sources
 
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(scrape_channel, link, keywords) for link in links]
+        concurrent.futures.wait
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(scrape_channel, link, keywords) for link in links]
         concurrent.futures.wait(futures)
@@ -180,3 +190,4 @@ if __name__ == "__main__":
             time.sleep(1)  # Sleep for 1 second at a time to handle any KeyboardInterrupt (Ctrl+C) gracefully
     except KeyboardInterrupt:
         print("\nScript manually stopped by the user.")
+    
