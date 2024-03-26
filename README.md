@@ -56,7 +56,8 @@ With no need for a Telegram API, this uses the preview function of web based tel
 - **Live Updates**: The dashboard refreshes in real-time, showcasing the latest scraping results.
 - **Keyword Highlighting**: Enhances readability by highlighting keywords and matches within the scraped content.
 - **Responsive Design**: Ensures a seamless viewing experience across various devices and screen sizes.
-<img width="1792" alt="Screenshot 2024-03-20 at 20 31 49" src="https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/f757d0e6-3de6-4d10-86ac-70812f9dfa26">
+
+![Screenshot 2024-03-26 at 09 44 18](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/36462caa-c0c9-42b0-bc89-b8e3e233801c)
 
 ## Contributing
 
