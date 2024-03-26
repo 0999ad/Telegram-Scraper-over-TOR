@@ -12,16 +12,13 @@
             color: #0f0; /* Green text as base color */
             padding: 20px; /* Added padding around the entire body for a border effect */
         }
-        .full-width-container {
+        .info-container, .warning-container {
             padding: 20px;
             background-color: #23272b; /* Slightly lighter dark shade */
-            color: #ff0000; /* Red text for links info */
+            color: #ff0000; /* Red text for important info */
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
             margin: 20px auto; /* Added margin to ensure there's space around the container */
-        }
-        h1 {
-            color: #0f0 !important; /* Force the title color to green */
         }
         .result {
             background-color: #1a1a1a; /* Dark background for results */
@@ -34,13 +31,22 @@
     </style>
 </head>
 <body class="text-light bg-dark"> <!-- Utilize Bootstrap classes for dark theme -->
-    <div class="container-fluid full-width-container">
+    <div class="container-fluid">
         <h1 class="text-center mb-4">TeleScrape Dashboard</h1>
-        <p class="text-success">Links Found: <span class="text-danger">{{ links_info.count }}</span></p>
-        <p class="text-success">Links File: <span class="text-danger">{{ links_info.filename }}</span></p>
+        <div class="info-container">
+            <p>Tor Connection: <strong><span class="text-danger">{{ "Connected" if tor_connected else "Not Connected" }}</span></strong></p>
+            <p>Tor IP Address: <strong><span class="text-danger">{{ tor_ip }}</span></strong></p>
+            <p># Links Found: <strong>{{ links_info.count }}</strong></p> <!-- Displaying the number of links found -->
+            <p>Links File: <strong><span class="text-danger">{{ links_info.filename }}</span></strong></p>
+            <p>Results File: <strong><span class="text-danger">{{ results_filename }}</span></strong></p>
+        </div>
+        <div class="warning-container">
+            <p class="text-warning">{{ warning_message }}</p>
+        </div>
         {% if results %}
             {% for result in results %}
                 <div class="result">
+                    <!-- Assuming result is a string; adjust if your data structure is different -->
                     <p>{{ result }}</p>
                 </div>
             {% endfor %}
