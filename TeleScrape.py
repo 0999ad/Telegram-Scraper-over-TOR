@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 2.0 (Production): A sophisticated web scraping tool designed for extracting content
+TeleScrape Version 3.0 (Production): A sophisticated web scraping tool designed for extracting content
 from Telegram channels, with enhanced privacy features through Tor network integration,
 a dashboard for displaying results, including matched content based on specified keywords,
-extended functionality to keep running until manually stopped, and ensuring the Flask dashboard remains live
-for result review.
+extended functionality to keep running until manually stopped, ensuring the Flask dashboard remains live
+for result review, and adding functionality to manually restart the scrape from the dashboard and to update keywords.
 
 Usage:
   python TeleScrape.py
@@ -20,7 +20,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import concurrent.futures
@@ -43,6 +43,7 @@ logging.basicConfig(level=logging.INFO,
                         logging.StreamHandler()
                     ])
 
+
 def setup_chrome_with_tor():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -51,6 +52,7 @@ def setup_chrome_with_tor():
     chrome_service = Service(executable_path=chromedriver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
+
 
 def verify_tor_connection():
     session = requests.session()
@@ -65,8 +67,10 @@ def verify_tor_connection():
         logging.error(f"Tor connection failed: {e}")
         tor_status['connected'] = False
 
+
 def get_current_datetime_formatted():
     return datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
+
 
 def read_keywords_from_file(file_path):
     global keywords_searched
@@ -76,6 +80,7 @@ def read_keywords_from_file(file_path):
     except FileNotFoundError:
         logging.error(f"Keyword file '{file_path}' not found.")
     return keywords_searched
+
 
 def create_links_file():
     global links_info
@@ -112,6 +117,7 @@ def create_links_file():
     logging.info(f"Found {len(all_filtered_links)} links in total and saved them to '{links_filename}'")
     return all_filtered_links
 
+
 def create_results_file():
     global results_filename
     current_datetime = get_current_datetime_formatted()
@@ -120,12 +126,15 @@ def create_results_file():
         pass
     logging.info(f"Results file initialized: {results_filename}")
 
+
 def scrape_channel(channel_url, keywords):
     driver = setup_chrome_with_tor()
     try:
-        channel_url_preview = channel_url if channel_url.startswith("https://t.me/s/") else channel_url.replace("https://t.me/", "https://t.me/s/")
+        channel_url_preview = channel_url if channel_url.startswith("https://t.me/s/") else channel_url.replace(
+            "https://t.me/", "https://t.me/s/")
         driver.get(channel_url_preview)
-        WebDriverWait(driver, 120).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "tgme_widget_message_text")))
+        WebDriverWait(driver, 120).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "tgme_widget_message_text")))
 
         page_source = driver.page_source
         soup = BeautifulSoup(page_source, "html.parser")
@@ -139,8 +148,7 @@ def scrape_channel(channel_url, keywords):
                     context = text[start_index:end_index]
                     match_message = f"Match found in {channel_url}: ...{context}..."
                     with lock:
-                        results.append(match_message)  # Append the result within the lock to ensure thread safety
-                        # Write the result directly to the file
+                        results.append(match_message)
                         with open(results_filename, 'a') as file:
                             file.write(f"{match_message}\n*****\n\n")
                     logging.info(match_message)
@@ -152,26 +160,68 @@ def scrape_channel(channel_url, keywords):
     finally:
         driver.quit()
 
+
+@app.route('/restart-scrape', methods=['POST'])
+def restart_scrape():
+    # Start a new thread for scraping to not block the main thread
+    Thread(target=start_scraping).start()
+    # Redirect back to the dashboard
+    return redirect(url_for('dashboard'))
+
+def start_scraping():
+    global results, links_info, results_filename
+    with lock:
+        # Clear previous results
+        results.clear()
+        # Reset links_info and results_filename for the new scrape session
+        links_info = {'count': 0, 'filename': ''}
+    logging.info("Starting new scrape with current keywords.")
+    # No change in keywords, so just read them from the global variable
+    keywords = keywords_searched
+    links = create_links_file()
+    create_results_file()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(scrape_channel, link, keywords) for link in links]
+        concurrent.futures.wait(futures)
+
+@app.route('/update-keywords', methods=['POST'])
+def update_keywords():
+    new_keywords = request.form['new_keywords']
+    new_keyword_list = new_keywords.split(',')
+    global keywords_searched
+    keywords_searched = new_keyword_list
+    with open('keywords.txt', 'w') as file:
+        for keyword in new_keyword_list:
+            file.write(f"{keyword}\n")
+    return redirect(url_for('restart_scrape'))
+
 @app.route('/')
 def dashboard():
-    """Renders the dashboard with the scraping results and status information."""
-    with lock:  # Use the lock to safely access the shared results list
-        local_results = list(results)  # Create a local copy to pass to the template
+    keywords_str = ' | '.join(keywords_searched)
+    with lock:
+        local_results = list(results)
     return render_template('dashboard.html',
                            results=local_results,
                            links_info=links_info,
-                           keywords=",".join(keywords_searched),
+                           keywords=keywords_str,
                            tor_connected=tor_status['connected'],
                            tor_ip=tor_status['ip_address'],
                            results_filename=results_filename,
                            warning_message="Warning: The information displayed is live and could contain offensive or malicious language.")
 
+@app.after_request
+def add_header(response):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
 def run_flask_app():
-    """Runs the Flask web application."""
     app.run(debug=True, host='0.0.0.0', port=8081, use_reloader=False)
 
 def main():
-    """Main function orchestrates the scraping process, initializes the Flask dashboard, and keeps the script running for user interaction."""
     start_time = time.time()
     verify_tor_connection()
     keywords = read_keywords_from_file('keywords.txt')
@@ -185,10 +235,7 @@ def main():
         return
 
     create_results_file()
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(scrape_channel, link, keywords) for link in links]
-        concurrent.futures.wait(futures)
+    start_scraping()
 
     end_time = time.time()
     total_time = end_time - start_time
@@ -205,3 +252,4 @@ if __name__ == "__main__":
     flask_thread = Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
     main()
+
