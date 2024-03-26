@@ -1,24 +1,24 @@
-# Telegram Channel Scraper and Dashboard via TOR
+# TeleScrape 
+   **Enhanced Telegram Channel Scraper using TOR and a Flask Dashboard for results**
 
 ## Legal Disclaimer
-This software is intended for **educational and research purposes only**. Users must ensure their use of this software complies with local laws and regulations. The creators of this software disclaim any liability for misuse or for any damage that may occur from using the software. It is the user's responsibility to use this software ethically and in accordance with the terms of service of any platform or data it interacts with.
+This software is designed solely for **educational and research purposes** and should be used with ethical considerations in mind. Users are responsible for ensuring their activities comply with local laws and regulations. The authors of this software bear no responsibility for any misuse or potential damages arising from its use. It's imperative to adhere to the terms of service of any platforms interacted with through this tool.
 
 ## Overview
 
-This project provides a powerful tool for scraping content from Telegram channels based on specified keywords, leveraging the Tor network for enhanced privacy. It combines the robust web scraping capabilities of Selenium with the dynamic and interactive presentation of results through a Flask-based web dashboard.
-With no need for a Telegram API, this uses the preview function of web based telegram. Some will work, some will not.
+TeleScrape is an advanced tool for extracting content from Telegram channels, emphasizing user privacy through Tor integration and providing real-time insights via a dynamic Flask dashboard. It eschews the need for Telegram's API by utilizing Selenium for web scraping, offering a robust solution for data gathering from public Telegram channels.
 
-## Features
+## Key Features
 
-- **Tor Network Integration**: Maximizes user privacy by routing scraping actions through the Tor network.
-- **Targeted Content Scraping**: Automatically retrieves content from specified Telegram channels, utilizing user-defined keywords for targeted scraping.
-- **Dynamic Results Dashboard**: Features a Flask web dashboard that updates in real-time to display scraping outcomes, offering insights into the data collected.
-- **Concurrent Scraping**: Implements parallel processing to scrape multiple sources simultaneously, optimizing the use of resources and reducing execution time.
-- **Configurable and Extensible**: Designed for easy customization and extension, allowing users to adapt the tool to their specific needs without extensive modifications.
+- **Enhanced Privacy**: Routes all scraping through the Tor network to protect user anonymity.
+- **Keyword-Driven Scraping**: Fetches channel content based on user-defined keywords, focusing on relevant data extraction.
+- **Interactive Web Dashboard**: Utilizes Flask to present scraping results dynamically, with real-time updates and insights.
+- **Efficient Parallel Processing**: Employs concurrent scraping to expedite data collection from multiple channels simultaneously.
+- **User-Friendly Customization**: Designed for easy adaptability to specific requirements, supporting straightforward modifications and extensions.
 
-## Technical Specifications
+## Technical Details
 
-### Dependencies
+### Prerequisites
 
 - Python 3.x
 - Flask
@@ -26,43 +26,41 @@ With no need for a Telegram API, this uses the preview function of web based tel
 - Selenium
 - Requests
 
-### Installation
+### Setting Up
 
-1. **Python 3.x**: Ensure Python 3.x is installed on your machine.
-2. **Dependencies Installation**: Install necessary Python packages.
-   ```sh
+1. **Python 3.x Installation**: Verify Python 3.x is installed on your system.
+2. **Dependencies**: Install the required Python packages using pip.
+   ```bash
    pip install flask beautifulsoup4 selenium requests
    ```
-3. **Tor Setup**: Install and run Tor on your local system. The software expects a Tor SOCKS proxy on `localhost:9050`.
-4. **Chrome WebDriver**: Ensure Chrome WebDriver is installed and its path is correctly configured in the script.
+3. **Tor Configuration**: Install Tor locally and ensure it's configured to run a SOCKS proxy on `localhost:9050`.
+4. **WebDriver Setup**: Chrome WebDriver should be installed and properly configured in the script's path settings.
 
-### Structure
+### Project Structure
 
-- `TeleScrape.py`: Main script integrating scraping logic, Flask app, and Tor configuration.
-- `keywords.txt`: A simple text file listing the keywords for content filtering.
-- `/templates`: Contains HTML templates for the Flask dashboard.
+- `TeleScrape.py`: The main script, encapsulating the scraping logic, Flask application, and Tor setup.
+- `keywords.txt`: Text file listing the keywords for content scraping.
+- `/templates`: Folder containing HTML templates for the Flask-based dashboard.
 
-## Usage
+## Getting Started
 
-1. **Configure Keywords**: Fill `keywords.txt` with the keywords you wish to use for scraping.
-2. **Execute Script**: Run `TeleScrape.py` to initiate scraping and start the Flask dashboard.
-   ```sh
+1. **Keyword Configuration**: Populate `keywords.txt` with your desired keywords.
+2. **Script Execution**: Launch `TeleScrape.py` to start scraping and activate the Flask dashboard.
+   ```bash
    python TeleScrape.py
    ```
-3. **Dashboard Access**: Visit `http://127.0.0.1:8081/` in your browser to view live updates of the scraping process and results.
+3. **Dashboard Navigation**: Access `http://127.0.0.1:8081/` on your browser to view the scraping progress and results live.
 
-## Dashboard Features
+## Dashboard Highlights
 
-- **Live Updates**: The dashboard refreshes in real-time, showcasing the latest scraping results.
-- **Keyword Highlighting**: Enhances readability by highlighting keywords and matches within the scraped content.
-- **Responsive Design**: Ensures a seamless viewing experience across various devices and screen sizes.
-
-![Screenshot 2024-03-26 at 09 44 18](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/36462caa-c0c9-42b0-bc89-b8e3e233801c)
+- **Real-Time Refresh**: Automatically updates to display the latest scraping data.
+- **Keyword Visualization**: Keywords and matches are highlighted within the content for better clarity.
+- **Adaptive Design**: Ensures a consistent experience across various devices and resolutions.
 
 ## Contributing
 
-We welcome contributions to improve the project. If you have suggestions or enhancements, please fork the repository, make your changes, and submit a pull request for review.
+Contributions are highly appreciated! If you have improvements or suggestions, please fork this repository, commit your changes, and submit a pull request for review.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE.md), encouraging a wide adoption and contribution by providing a permissive framework for software sharing and modification.
+This project is distributed under the [MIT License](LICENSE.md), fostering widespread use and contribution by providing a lenient framework for software distribution and modification.
