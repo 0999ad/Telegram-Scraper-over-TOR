@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+/* TeleScrape Version 3.0 (Production) */
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,10 +13,10 @@
             color: #0f0; /* Green text as base color */
             padding: 20px; /* Added padding around the entire body for a border effect */
         }
-        .info-container, .warning-container, .keywords-container {
+        .info-container, .warning-container {
             padding: 20px;
             background-color: #23272b; /* Slightly lighter dark shade */
-            color: #ff0000; /* Red text for important info and green for keywords */
+            color: #ff0000; /* Red text for important info */
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
             margin: 20px auto; /* Added margin to ensure there's space around the container */
@@ -28,21 +29,35 @@
             padding: 10px;
             margin-bottom: 10px;
         }
+        .keywords-input {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
-<body class="text-light bg-dark"> <!-- Utilize Bootstrap classes for dark theme -->
+<body class="text-light bg-dark">
     <div class="container-fluid">
         <h1 class="text-center mb-4">TeleScrape Dashboard</h1>
         <div class="info-container">
             <p>Tor Connection: <strong><span class="text-danger">{{ "Connected" if tor_connected else "Not Connected" }}</span></strong></p>
             <p>Tor IP Address: <strong><span class="text-danger">{{ tor_ip }}</span></strong></p>
-            <p># Links Found: <strong>{{ links_info.count }}</strong></p> <!-- Displaying the number of links found -->
+            <p># Links Found: <strong>{{ links_info.count }}</strong></p>
             <p>Links File: <strong><span class="text-danger">{{ links_info.filename }}</span></strong></p>
             <p>Results File: <strong><span class="text-danger">{{ results_filename }}</span></strong></p>
-        </div>
-        <div class="keywords-container">
-            <p>Keywords being searched:</p>
-            <p><strong><span class="text-danger">{{ keywords }}</span></strong></p>
+            <p>Keywords being searched: <span class="text-success">{{ keywords }}</span></p>
+            <div class="keywords-input">
+                <form action="/update-keywords" method="post">
+                    <div class="form-group">
+                        <label for="new_keywords">Enter New Keywords:</label>
+                        <input type="text" class="form-control" id="new_keywords" name="new_keywords" placeholder="Enter keywords separated by commas">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Keywords & Restart</button>
+                </form>
+            </div>
+            <div class="restart-scrape">
+                <form action="/restart-scrape" method="post">
+                <button type="submit" class="btn btn-secondary">Restart Scrape</button>
+                 </form>
+            </div>
         </div>
         <div class="warning-container">
             <p class="text-warning">{{ warning_message }}</p>
@@ -62,5 +77,11 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        window.onbeforeunload = function() {
+            return "Are you sure you want to leave? The current scrape will be stopped.";
+        };
+    </script>
+
 </body>
 </html>
