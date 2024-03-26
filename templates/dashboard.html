@@ -12,10 +12,10 @@
             color: #0f0; /* Green text as base color */
             padding: 20px; /* Added padding around the entire body for a border effect */
         }
-        .info-container, .warning-container {
+        .info-container, .warning-container, .keywords-container {
             padding: 20px;
             background-color: #23272b; /* Slightly lighter dark shade */
-            color: #ff0000; /* Red text for important info */
+            color: #ff0000; /* Red text for important info and green for keywords */
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
             margin: 20px auto; /* Added margin to ensure there's space around the container */
@@ -40,13 +40,16 @@
             <p>Links File: <strong><span class="text-danger">{{ links_info.filename }}</span></strong></p>
             <p>Results File: <strong><span class="text-danger">{{ results_filename }}</span></strong></p>
         </div>
+        <div class="keywords-container">
+            <p>Keywords being searched:</p>
+            <p><strong><span class="text-danger">{{ keywords }}</span></strong></p>
+        </div>
         <div class="warning-container">
             <p class="text-warning">{{ warning_message }}</p>
         </div>
         {% if results %}
             {% for result in results %}
                 <div class="result">
-                    <!-- Assuming result is a string; adjust if your data structure is different -->
                     <p>{{ result }}</p>
                 </div>
             {% endfor %}
