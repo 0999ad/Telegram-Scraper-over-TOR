@@ -57,6 +57,8 @@ TeleScrape is an advanced tool for extracting content from Telegram channels, em
 - **Keyword Visualization**: Keywords and matches are highlighted within the content for better clarity.
 - **Adaptive Design**: Ensures a consistent experience across various devices and resolutions.
 
+![Screenshot 2024-03-26 at 14 22 19](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/867e7901-1287-492f-9f75-bc979c562f5d)
+
 ## Contributing
 
 Contributions are highly appreciated! If you have improvements or suggestions, please fork this repository, commit your changes, and submit a pull request for review.
