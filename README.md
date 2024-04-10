@@ -1,5 +1,6 @@
+```
 # TeleScrape 
-   **Enhanced Telegram Channel Scraper using TOR and a Flask Dashboard for results**
+**Enhanced Telegram Channel Scraper using TOR and a Flask Dashboard for results**
 
 ## Legal Disclaimer
 This software is designed solely for **educational and research purposes** and should be used with ethical considerations in mind. Users are responsible for ensuring their activities comply with local laws and regulations. The authors of this software bear no responsibility for any misuse or potential damages arising from its use. It's imperative to adhere to the terms of service of any platforms interacted with through this tool.
@@ -31,10 +32,10 @@ TeleScrape is an advanced tool for extracting content from Telegram channels, em
 1. **Python 3.x Installation**: Verify Python 3.x is installed on your system.
 2. **Dependencies**: Install the required Python packages using pip.
    ```bash
-   pip install flask beautifulsoup4 selenium requests
+   pip install flask beautifulsoup4 selenium requests pysocks
    ```
 3. **Tor Configuration**: Install Tor locally and ensure it's configured to run a SOCKS proxy on `localhost:9050`.
-4. **WebDriver Setup**: Chrome WebDriver should be installed and properly configured in the script's path settings.
+4. **WebDriver Setup**: Ensure the Chrome WebDriver is installed and properly configured in the script's path settings.
 
 ### Project Structure
 
@@ -57,7 +58,7 @@ TeleScrape is an advanced tool for extracting content from Telegram channels, em
 - **Keyword Visualization**: Keywords and matches are highlighted within the content for better clarity.
 - **Adaptive Design**: Ensures a consistent experience across various devices and resolutions.
 
-![Screenshot 2024-03-26 at 14 22 19](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/867e7901-1287-492f-9f75-bc979c562f5d)
+![Screenshot 2024-04-10 at 15 38 31](https://github.com/0999ad/Telegram-Scraper-over-TOR/assets/34707278/84d763a2-4058-4a7e-9e18-fe2d88876e80)
 
 ## Contributing
 
@@ -66,3 +67,4 @@ Contributions are highly appreciated! If you have improvements or suggestions, p
 ## License
 
 This project is distributed under the [MIT License](LICENSE.md), fostering widespread use and contribution by providing a lenient framework for software distribution and modification.
+```
