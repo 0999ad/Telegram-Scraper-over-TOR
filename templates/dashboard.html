@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-/* TeleScrape Version 3.0 (Production) */
+/* TeleScrape Version 4.0 (Production) */
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TeleScrape Dashboard</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
@@ -53,10 +52,19 @@
                     <button type="submit" class="btn btn-primary">Update Keywords & Restart</button>
                 </form>
             </div>
+            <div class="add-channel">
+                <form action="/add-channel" method="post">
+                    <div class="form-group">
+                        <label for="new_channel">Add New Telegram Channel:</label>
+                        <input type="text" class="form-control" id="new_channel" name="new_channel" placeholder="Enter full Telegram channel URL">
+                    </div>
+                    <button type="submit" class="btn btn-success">Add Channel</button>
+                </form>
+            </div>
             <div class="restart-scrape">
                 <form action="/restart-scrape" method="post">
-                <button type="submit" class="btn btn-secondary">Restart Scrape</button>
-                 </form>
+                    <button type="submit" class="btn btn-secondary">Restart Scrape</button>
+                </form>
             </div>
         </div>
         <div class="warning-container">
@@ -72,8 +80,6 @@
             <p class="text-center">No results found.</p>
         {% endif %}
     </div>
-
-    <!-- Optional JavaScript and Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -82,6 +88,5 @@
             return "Are you sure you want to leave? The current scrape will be stopped.";
         };
     </script>
-
 </body>
 </html>
