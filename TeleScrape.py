@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 3.0 (Production): A sophisticated web scraping tool designed for extracting content
+TeleScrape Version 4.0 (Production): A sophisticated web scraping tool designed for extracting content
 from Telegram channels, with enhanced privacy features through Tor network integration,
 a dashboard for displaying results, including matched content based on specified keywords,
 extended functionality to keep running until manually stopped, ensuring the Flask dashboard remains live
@@ -9,7 +9,6 @@ for result review, and adding functionality to manually restart the scrape from 
 Usage:
   python TeleScrape.py
 """
-
 import time
 import requests
 from bs4 import BeautifulSoup
@@ -35,6 +34,7 @@ keywords_searched = []
 lock = Lock()
 tor_status = {'connected': False, 'ip_address': 'N/A'}
 results_filename = ""
+scraping_in_progress = Lock()
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s',
@@ -42,7 +42,6 @@ logging.basicConfig(level=logging.INFO,
                         logging.FileHandler("TeleScrape.log"),
                         logging.StreamHandler()
                     ])
-
 
 def setup_chrome_with_tor():
     chrome_options = Options()
@@ -53,24 +52,21 @@ def setup_chrome_with_tor():
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
 
-
 def verify_tor_connection():
     session = requests.session()
     session.proxies = {'http': 'socks5h://localhost:9050', 'https': 'socks5h://localhost:9050'}
     try:
         ip_check_url = 'http://httpbin.org/ip'
-        response = session.get(ip_check_url)
+        response = session.get(ip_check_url, timeout=10)
         tor_status['ip_address'] = response.json()["origin"]
         tor_status['connected'] = True
         logging.info(f"Connected to TOR. TOR IP Address: {tor_status['ip_address']}")
     except requests.RequestException as e:
-        logging.error(f"Tor connection failed: {e}")
         tor_status['connected'] = False
-
+        logging.error(f"Tor connection failed: {e}")
 
 def get_current_datetime_formatted():
     return datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
-
 
 def read_keywords_from_file(file_path):
     global keywords_searched
@@ -81,14 +77,25 @@ def read_keywords_from_file(file_path):
         logging.error(f"Keyword file '{file_path}' not found.")
     return keywords_searched
 
+def read_bespoke_channels():
+    try:
+        with open('bespoke_channels.txt', 'r') as file:
+            return [line.strip() for line in file if line.strip()]
+    except FileNotFoundError:
+        return []
+
+def write_bespoke_channels(channels):
+    with open('bespoke_channels.txt', 'w') as file:
+        for channel in channels:
+            file.write(f"{channel}\n")
 
 def create_links_file():
     global links_info
+    all_filtered_links = read_bespoke_channels()  # Start with bespoke channels
     github_urls = [
         "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_threat_actors.md",
         "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md"
     ]
-    all_filtered_links = []
     driver = setup_chrome_with_tor()
     try:
         for github_url in github_urls:
@@ -117,7 +124,6 @@ def create_links_file():
     logging.info(f"Found {len(all_filtered_links)} links in total and saved them to '{links_filename}'")
     return all_filtered_links
 
-
 def create_results_file():
     global results_filename
     current_datetime = get_current_datetime_formatted()
@@ -125,7 +131,6 @@ def create_results_file():
     with open(results_filename, "w") as file:
         pass
     logging.info(f"Results file initialized: {results_filename}")
-
 
 def scrape_channel(channel_url, keywords):
     driver = setup_chrome_with_tor()
@@ -146,13 +151,13 @@ def scrape_channel(channel_url, keywords):
                     start_index = max(text.lower().find(keyword.lower()) - 200, 0)
                     end_index = min(start_index + 200 + len(keyword), len(text))
                     context = text[start_index:end_index]
-                    match_message = f"Match found in {channel_url}: ...{context}..."
+                    match_message = f"Keyword Match '{keyword}' found in {channel_url}: ...{context}..."
                     with lock:
                         results.append(match_message)
                         with open(results_filename, 'a') as file:
                             file.write(f"{match_message}\n*****\n\n")
                     logging.info(match_message)
-                    break
+                    break  # Break after the first keyword match per element
     except TimeoutException:
         logging.warning(f"Timed out waiting for page to load: {channel_url}")
     except Exception as e:
@@ -160,29 +165,31 @@ def scrape_channel(channel_url, keywords):
     finally:
         driver.quit()
 
-
 @app.route('/restart-scrape', methods=['POST'])
 def restart_scrape():
-    # Start a new thread for scraping to not block the main thread
+    if scraping_in_progress.locked():
+        logging.info("Scraping process is already running and cannot be restarted.")
+        return redirect(url_for('dashboard'))
     Thread(target=start_scraping).start()
-    # Redirect back to the dashboard
     return redirect(url_for('dashboard'))
 
 def start_scraping():
-    global results, links_info, results_filename
-    with lock:
-        # Clear previous results
-        results.clear()
-        # Reset links_info and results_filename for the new scrape session
-        links_info = {'count': 0, 'filename': ''}
-    logging.info("Starting new scrape with current keywords.")
-    # No change in keywords, so just read them from the global variable
-    keywords = keywords_searched
-    links = create_links_file()
-    create_results_file()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(scrape_channel, link, keywords) for link in links]
-        concurrent.futures.wait(futures)
+    if scraping_in_progress.locked():
+        logging.info("Scraping process is already running and cannot be started again.")
+        return
+    with scraping_in_progress:
+        global results, links_info, results_filename
+        with lock:
+            results.clear()
+            links_info = {'count': 0, 'filename': ''}
+        logging.info("Starting new scrape with current keywords.")
+        keywords = keywords_searched
+        links = create_links_file()
+        create_results_file()
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(scrape_channel, link, keywords) for link in links]
+            concurrent.futures.wait(futures)
+        logging.info("Scraping process completed.")
 
 @app.route('/update-keywords', methods=['POST'])
 def update_keywords():
@@ -194,6 +201,16 @@ def update_keywords():
         for keyword in new_keyword_list:
             file.write(f"{keyword}\n")
     return redirect(url_for('restart_scrape'))
+
+@app.route('/add-channel', methods=['POST'])
+def add_channel():
+    new_channel = request.form['new_channel'].strip()
+    if new_channel:
+        channels = read_bespoke_channels()
+        if new_channel not in channels:
+            channels.append(new_channel)
+            write_bespoke_channels(channels)
+    return redirect(url_for('dashboard'))
 
 @app.route('/')
 def dashboard():
@@ -211,10 +228,6 @@ def dashboard():
 
 @app.after_request
 def add_header(response):
-    """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for 10 minutes.
-    """
     response.headers['Cache-Control'] = 'no-store'
     return response
 
@@ -241,7 +254,6 @@ def main():
     total_time = end_time - start_time
     logging.info(f"Scraping and keyword search completed in {total_time:.2f} seconds. Please visit the dashboard for results.")
 
-    # Keep the script running until manually terminated, allowing Flask dashboard to remain accessible
     try:
         while True:
             time.sleep(1)
@@ -252,4 +264,3 @@ if __name__ == "__main__":
     flask_thread = Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
     main()
-
