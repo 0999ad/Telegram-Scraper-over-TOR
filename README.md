@@ -1,4 +1,4 @@
-```
+
 # TeleScrape 
 **Enhanced Telegram Channel Scraper using TOR and a Flask Dashboard for results**
 
