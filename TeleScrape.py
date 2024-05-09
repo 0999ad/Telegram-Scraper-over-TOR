@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 4.0 (Production): A sophisticated web scraping tool designed for extracting content
-from Telegram channels, with enhanced privacy features through Tor network integration,
-a dashboard for displaying results, including matched content based on specified keywords,
-extended functionality to keep running until manually stopped, ensuring the Flask dashboard remains live
-for result review, and adding functionality to manually restart the scrape from the dashboard and to update keywords.
+TeleScrape Version 5.0 (Production): An advanced web scraping tool designed for extracting content
+from Telegram channels. This version includes enhanced privacy features with Tor network integration,
+a responsive dashboard for displaying results, and functionality for dynamically updating keywords.
+New in this version:
+- Configurable multi-site scraping with simple URL and selector setup,
+- Enhanced error handling and logging capabilities,
+- Use of Selenium for dynamic content sites like GitHub,
+- Duplicate link removal before scraping,
+- Improved system stability and performance optimization.
 
 Usage:
   python TeleScrape.py
 """
+
 import time
 import requests
 from bs4 import BeautifulSoup
@@ -89,40 +94,59 @@ def write_bespoke_channels(channels):
         for channel in channels:
             file.write(f"{channel}\n")
 
+sites_to_scrape = [
+    {
+        "url": "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_threat_actors.md",
+        "selector": "article.markdown-body a[href]",
+        "use_selenium": True
+    },
+    {
+        "url": "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md",
+        "selector": "article.markdown-body a[href]",
+        "use_selenium": True
+    },
+    {
+        "url": "https://www.breachsense.com/telegram-channels/",
+        "selector": "tr a[href]",
+        "use_selenium": False
+    }
+]
+
+def fetch_links_from_site(url, selector, use_selenium=False):
+    if use_selenium:
+        driver = setup_chrome_with_tor()
+        driver.get(url)
+        time.sleep(5)  # Wait for the page to load fully
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        driver.quit()
+    else:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+    links = [a['href'] for a in soup.select(selector) if "https://t.me/" in a['href']]
+    return links
+
 def create_links_file():
     global links_info
-    all_filtered_links = read_bespoke_channels()  # Start with bespoke channels
-    github_urls = [
-        "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_threat_actors.md",
-        "https://github.com/fastfire/deepdarkCTI/blob/main/telegram_infostealer.md"
-    ]
-    driver = setup_chrome_with_tor()
-    try:
-        for github_url in github_urls:
-            logging.info(f"Fetching links from {github_url}...")
-            driver.get(github_url)
-            time.sleep(5)
-
-            page_source = driver.page_source
-            soup = BeautifulSoup(page_source, "html.parser")
-            links = soup.find_all("a", href=True)
-            filtered_links = [link["href"] for link in links if "https://t.me/" in link["href"]]
-            all_filtered_links.extend(filtered_links)
-    except Exception as e:
-        logging.error(f"Error fetching links from {github_url}: {e}")
-    finally:
-        driver.quit()
-
+    all_links = read_bespoke_channels()  # Start with bespoke channels
+    for site in sites_to_scrape:
+        logging.info(f"Fetching links from {site['url']}...")
+        site_links = fetch_links_from_site(site['url'], site['selector'], site.get('use_selenium', False))
+        all_links.extend(site_links)
+    
+    # Remove duplicates by converting to a set and back to a list
+    unique_links = list(set(all_links))
+    links_info['count'] = len(unique_links)
     current_datetime = get_current_datetime_formatted()
     links_filename = f"{current_datetime}-links.txt"
-    links_info['count'] = len(all_filtered_links)
     links_info['filename'] = links_filename
 
     with open(links_filename, "w") as file:
-        for link in all_filtered_links:
+        for link in unique_links:
             file.write(f"{link}\n")
-    logging.info(f"Found {len(all_filtered_links)} links in total and saved them to '{links_filename}'")
-    return all_filtered_links
+    logging.info(f"Found {links_info['count']} unique links in total and saved them to '{links_filename}'")
+    return unique_links
 
 def create_results_file():
     global results_filename
