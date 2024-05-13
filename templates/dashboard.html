@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-/* TeleScrape Version 4.0 (Production) */
+/* TeleScrape Version 6.1 (BETA) */
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -42,6 +42,8 @@
             <p># Links Found: <strong>{{ links_info.count }}</strong></p>
             <p>Links File: <strong><span class="text-danger">{{ links_info.filename }}</span></strong></p>
             <p>Results File: <strong><span class="text-danger">{{ results_filename }}</span></strong></p>
+            <p>Scrape Started At: <strong><span class="text-success">{{ scrape_start_time }}</span></strong></p>
+            <p>Scrape Finished At: <strong><span class="text-success">{{ scrape_end_time }}</span></strong></p>
             <p>Keywords being searched: <span class="text-success">{{ keywords }}</span></p>
             <div class="keywords-input">
                 <form action="/update-keywords" method="post">
