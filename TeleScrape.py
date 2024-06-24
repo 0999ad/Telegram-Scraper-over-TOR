@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 6.1 (BETA): An advanced web scraping tool designed for extracting content
+TeleScrape Version 6.2 (BETA): An advanced web scraping tool designed for extracting content
 from Telegram channels. This version includes enhanced privacy features with Tor network integration,
 a responsive dashboard for displaying results, and functionality for dynamically updating keywords.
 New in this version:
@@ -12,6 +12,12 @@ New in this version:
 - Real-time updates on the dashboard using WebSocket,
 - Advanced keyword matching using NLP techniques,
 - Improved user feedback and real-time status updates.
+.___________.  _______      _______.        _______.  ______ .______          ___      .______    _______ .______
+|           | /  _____|    /       |       /       | /      ||   _  \        /   \     |   _  \  |   ____||   _  \
+`---|  |----`|  |  __     |   (----`      |   (----`|  ,----'|  |_)  |      /  ^  \    |  |_)  | |  |__   |  |_)  |
+    |  |     |  | |_ |     \   \           \   \    |  |     |      /      /  /_\  \   |   ___/  |   __|  |      /
+    |  |     |  |__| | .----)   |      .----)   |   |  `----.|  |\  \----./  _____  \  |  |      |  |____ |  |\  \----.
+    |__|      \______| |_______/       |_______/     \______|| _| `._____/__/     \__\ | _|      |_______|| _| `._____|
 
 Usage:
   python TeleScrape.py
@@ -327,4 +333,3 @@ if __name__ == "__main__":
     flask_thread = Thread(target=run_flask_app, daemon=True)
     flask_thread.start()
     main()
-
