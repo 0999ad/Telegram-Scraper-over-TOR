@@ -26,13 +26,14 @@ TeleScrape is an advanced tool for extracting content from Telegram channels, em
 - BeautifulSoup4
 - Selenium
 - Requests
+- flask_socketio
 
 ### Setting Up
 
 1. **Python 3.x Installation**: Verify Python 3.x is installed on your system.
 2. **Dependencies**: Install the required Python packages using pip.
    ```bash
-   pip install flask beautifulsoup4 selenium requests pysocks
+   pip install flask beautifulsoup4 selenium requests pysocks flask_socketio
    ```
 3. **Tor Configuration**: Install Tor locally and ensure it's configured to run a SOCKS proxy on `localhost:9050`.
 4. **WebDriver Setup**: Ensure the Chrome WebDriver is installed and properly configured in the script's path settings.
