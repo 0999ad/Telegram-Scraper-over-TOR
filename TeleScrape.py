@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-TeleScrape Version 6.2 (BETA): An advanced web scraping tool designed for extracting content
+TeleScrape Version 6.2.1 (BETA): An advanced web scraping tool designed for extracting content
 from Telegram channels. This version includes enhanced privacy features with Tor network integration,
 a responsive dashboard for displaying results, and functionality for dynamically updating keywords.
 New in this version:
@@ -68,9 +68,17 @@ def setup_chrome_with_tor():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--proxy-server=socks5://localhost:9050")
-    chromedriver_path = "/usr/local/bin/chromedriver"
+    # Optional: specify the path to the Chrome binary if it's not in the default location
+    chrome_options.binary_location = "/usr/bin/google-chrome"
+    chromedriver_path = "/usr/local/bin/chromedriver"  # Updated path
+    logging.debug(f"Using ChromeDriver at: {chromedriver_path}")
     chrome_service = Service(executable_path=chromedriver_path)
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    try:
+        driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+        logging.debug("ChromeDriver initialized successfully.")
+    except Exception as e:
+        logging.error(f"Failed to initialize ChromeDriver: {e}")
+        raise
     return driver
 
 def verify_tor_connection():
